@@ -1,0 +1,40 @@
+plugins {
+    id 'java'
+}
+
+group 'net.otlg'
+version '1.0-SNAPSHOT'
+
+sourceCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    // Server
+    compile group: 'io.netty', name: 'netty-all', version: '4.1.36.Final'
+
+    // Database
+    compile group: 'com.zaxxer', name: 'HikariCP', version: '3.3.1'
+    compile group: 'mysql', name: 'mysql-connector-java', version: '8.0.16'
+
+    // Student Check-In dependency
+    compile 'com.google.code.gson:gson:2.8.5'
+    compile group: 'org.mindrot', name: 'jbcrypt', version: '0.4'
+
+
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+}
+
+jar {
+    configurations.compile.each { entry ->
+        from(project.zipTree(entry)) {
+            exclude 'META-INF', 'META-INF/**'
+        }
+    }
+
+    manifest {
+        attributes 'Main-Class': 'net.otlg.studentcheckin.Server'
+    }
+}

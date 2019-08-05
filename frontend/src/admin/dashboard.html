@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+    <meta charset="UTF-8">
+    <title>Check-in - Administration</title>
+
+    <script src="../ajax.js"></script>
+    <script src="dashboard.js"></script>
+    <link rel="stylesheet" href="../bootstrap.css">
+    <link rel="stylesheet" href="../custom.css">
+</head>
+<body>
+
+<div id="menu" class="row" style="padding-bottom: 20px; width: 99vw;">
+
+    <fieldset id="radio-type">
+    </fieldset>
+    <div class="col-4 input-padded">
+        <div class="input-group">
+            <input type="text" class="form-control" id="search-name" placeholder="Name">
+            <div class="input-group-text input-group-append">
+                <input type="radio" id="search-name-enable" name="radio-type">
+            </div>
+        </div>
+    </div>
+    <div class="col-2 input-padded">
+        <div class="input-group">
+            <input type="text" class="form-control" id="search-class" placeholder="Class">
+            <div class="input-group-text input-group-append">
+                <input type="radio" id="search-class-enable" name="radio-type">
+            </div>
+        </div>
+    </div>
+    <div class="col-3 input-padded">
+        <div class="input-group">
+            <input type="date" class="form-control" id="search-datepicker">
+            <div class="input-group-text input-group-append">
+                <input type="radio" id="search-datepicker-enable" name="radio-type" checked>
+            </div>
+        </div>
+    </div>
+    <div class="col-4 input-padded">
+        <button class="btn btn-primary" onclick="updateListData(true)">Fetch</button>
+        <button class="btn btn-danger" onclick="sendRequestLogout().then(a => {window.location.href = './'})">
+            Logout
+        </button>
+    </div>
+</div>
+
+<table class="table" id="list_table">
+    <thead>
+    <tr>
+        <td>Name</td>
+        <td>Nick</td>
+        <td>Class</td>
+        <td>Time</td>
+        <td>Operations</td>
+    </tr>
+    </thead>
+
+    <template>
+        <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td>
+                <button class="btn btn-outline-danger">Delete</button>
+            </td>
+        </tr>
+    </template>
+
+    <tbody id="list_table_body">
+
+    </tbody>
+</table>
+</body>
+</html>

@@ -1,0 +1,51 @@
+.full-body {
+  width: 100vw;
+  min-height: 100vh;
+}
+
+.center, .login-form {
+  position: absolute;
+  left: 50vw;
+  top: 50vh;
+  transform: translate(-50%, -50%);
+}
+
+.hcenter {
+  position: absolute;
+  left: 50vw;
+  transform: translateX(-50%);
+}
+
+.login-form {
+  padding: 20px;
+  width: 350px;
+}
+
+.login-form button {
+  margin-top: 20px;
+  width: 100%;
+}
+
+.input-padded {
+  transform: translateX(20px);
+  padding-top: 10px;
+  padding-left: 10px;
+}
+
+.title-custom {
+  font-size: 2rem;
+  text-align: center;
+}
+
+.note {
+  text-align: center;
+  font-size: 1.5rem;
+}
+
+.error {
+  color: red;
+  text-align: center;
+  transform: translateY(-15px);
+}
+
+/*# sourceMappingURL=custom.css.map */

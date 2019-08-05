@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+    <meta charset="UTF-8">
+    <title>Check-in - Administration</title>
+
+    <script src="../ajax.js"></script>
+    <link rel="stylesheet" href="../bootstrap.css">
+    <link rel="stylesheet" href="../custom.css">
+</head>
+
+<body>
+<form class="form-group login-form" method="post">
+    <div style="height: 100px">
+        <p class="title-custom">Authentication</p>
+        <p class="error" id="error" hidden>Authentication failed!</p>
+    </div>
+    <div style="transform: translateY(-20px)">
+        <label> Username:</label>
+        <input class="form-control" id="form_login_username" type="text" name="username" title="Username">
+
+        <label> Password:</label>
+        <input class="form-control" id="form_login_password" type="password" name="password" title="Password">
+
+        <button class="btn btn-primary" id="form_login_submit" type="submit">Login</button>
+    </div>
+</form>
+
+<script src="login-page.js"></script>
+
+</body>
+</html>
