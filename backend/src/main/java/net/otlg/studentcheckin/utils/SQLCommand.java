@@ -4,6 +4,7 @@ import com.google.gson.reflect.TypeToken;
 import net.otlg.apiserver.config.ConfigLoader;
 import net.otlg.apiserver.net.wrapper.HttpFormPostDecoder;
 import net.otlg.studentcheckin.etc.LogEntryWrapper;
+import net.otlg.studentcheckin.etc.UserEntryWrapper;
 import org.mindrot.jbcrypt.BCrypt;
 
 import java.sql.Connection;
@@ -76,6 +77,32 @@ public class SQLCommand {
             return ConfigLoader.GSON.fromJson(resultSet.getString(1), new TypeToken<List<String>>() {
             }.getType());
 
+        } finally {
+            if (autoClose) connection.close();
+        }
+    }
+
+    public static List<UserEntryWrapper> getAdmins(Connection connection, boolean autoClose) throws SQLException {
+        try {
+            List<UserEntryWrapper> list = new ArrayList<>();
+
+            PreparedStatement statement = connection.prepareStatement("SELECT id, name, email, nick, class, perm FROM studentcheckin.user WHERE perm LIKE '%admin%';");
+            statement.execute();
+
+            ResultSet resultSet = statement.getResultSet();
+
+            while (resultSet.next()) {
+                list.add(new UserEntryWrapper(
+                        resultSet.getInt(1),
+                        resultSet.getString(2),
+                        resultSet.getString(3),
+                        resultSet.getString(4),
+                        resultSet.getString(5),
+                        resultSet.getString(6)
+                ));
+            }
+
+            return list;
         } finally {
             if (autoClose) connection.close();
         }

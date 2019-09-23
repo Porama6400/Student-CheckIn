@@ -5,6 +5,8 @@ import io.netty.buffer.Unpooled;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.cookie.DefaultCookie;
 
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -56,7 +58,7 @@ public class ResultContainer {
         if (data instanceof byte[]) {
             return (byte[]) data;
         } else if (data instanceof String) {
-            return data.toString().getBytes();
+            return data.toString().getBytes(StandardCharsets.UTF_8);
         }
 
         if (cookies.size() > 0) return new byte[0];

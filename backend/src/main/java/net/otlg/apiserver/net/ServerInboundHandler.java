@@ -10,6 +10,7 @@ import net.otlg.apiserver.APIServer;
 import net.otlg.apiserver.net.wrapper.HttpRequestWrapper;
 import net.otlg.studentcheckin.RequestHandler;
 
+import java.nio.charset.Charset;
 import java.util.List;
 
 public class ServerInboundHandler extends ChannelInboundHandlerAdapter {

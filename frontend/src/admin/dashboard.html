@@ -40,8 +40,11 @@
             </div>
         </div>
     </div>
-    <div class="col-4 input-padded">
+    <div class="col-12 input-padded">
         <button class="btn btn-primary" onclick="updateListData(true)">Fetch</button>
+        <button class="btn btn-warning" onclick="window.location.href = './account.html'">
+            Management Admin
+        </button>
         <button class="btn btn-danger" onclick="sendRequestLogout().then(a => {window.location.href = './'})">
             Logout
         </button>

@@ -8,6 +8,7 @@ import net.otlg.apiserver.config.ServerConfigFile;
 import net.otlg.apiserver.net.ResultContainer;
 import net.otlg.apiserver.net.wrapper.HttpRequestWrapper;
 import net.otlg.studentcheckin.etc.LogEntryWrapper;
+import net.otlg.studentcheckin.etc.UserEntryWrapper;
 import net.otlg.studentcheckin.utils.SQLCommand;
 import net.otlg.studentcheckin.utils.UserUtils;
 
@@ -78,6 +79,13 @@ public class Server {
                     if (action.equals("list")) {
                         if (session.checkPerm("admin", result)) {
                             List<LogEntryWrapper> data = SQLCommand.getDataList(request.getPost(), server.getDatabase(), true);
+                            result.set(ConfigLoader.GSON.toJson(data));
+                        }
+                        return;
+                    }
+                    if (action.equals("listadmin")) {
+                        if (session.checkPerm("userman", result)) {
+                            List<UserEntryWrapper> data = SQLCommand.getAdmins(server.getDatabase(), true);
                             result.set(ConfigLoader.GSON.toJson(data));
                         }
                         return;

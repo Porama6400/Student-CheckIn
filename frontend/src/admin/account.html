@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+    <meta charset="UTF-8">
+    <title>Check-in - Administration</title>
+
+    <script src="../ajax.js"></script>
+    <script src="account.js"></script>
+    <link rel="stylesheet" href="../bootstrap.css">
+    <link rel="stylesheet" href="../custom.css">
+</head>
+<body>
+
+<div id="menu" class="row" style="padding-bottom: 20px; width: 99vw;">
+    <div class="col-4 input-padded">
+        <button class="btn btn-danger" onclick="window.location.href = './dashboard.html'">
+            Back
+        </button>
+    </div>
+</div>
+
+<table class="table" id="table">
+    <thead>
+    <tr>
+        <td>Name</td>
+        <td>Nick</td>
+        <td>Email</td>
+        <td>Classroom</td>
+        <td>Permissions</td>
+        <td>Operations</td>
+    </tr>
+    </thead>
+
+    <template>
+        <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td>
+                <button class="btn btn-outline-danger">Edit</button>
+            </td>
+        </tr>
+    </template>
+
+    <tbody id="tbody">
+
+    </tbody>
+</table>
+</body>
+</html>

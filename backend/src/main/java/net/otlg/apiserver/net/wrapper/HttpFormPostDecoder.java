@@ -9,7 +9,7 @@ import java.io.IOException;
 
 public class HttpFormPostDecoder {
     private final FullHttpRequest httpRequest;
-    HttpPostRequestDecoder decoder;
+    private HttpPostRequestDecoder decoder;
 
     public HttpFormPostDecoder(FullHttpRequest httpRequest) {
         this.httpRequest = httpRequest;
