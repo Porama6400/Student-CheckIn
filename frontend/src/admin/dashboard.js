@@ -36,9 +36,13 @@ window.onload = function () {
             updateListData();
         }
     });
+
+    sendRequestCheckPerm("admin.account.view").then(a => {
+        if (a) document.getElementById("btn-manage-user").hidden = undefined;
+    });
 };
 
-document.addEventListener('keyup',function(e){
+document.addEventListener('keyup', function (e) {
     if (e.key === "Enter") {
         updateListData(true);
     }
@@ -47,7 +51,7 @@ document.addEventListener('keyup',function(e){
 async function updateListData(verbose) {
     if (verbose === undefined) verbose = false;
 
-    let hasDeletePerm = await sendRequestCheckPerm("delete");
+    let hasDeletePerm = await sendRequestCheckPerm("admin.log.delete");
 
     let type = undefined;
     let value = undefined;

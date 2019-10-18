@@ -55,6 +55,20 @@ function sendRequestDeleteLog(id) {
     return sendRequest("/admin?action=delete", formData);
 }
 
+function sendRequestUserUpdate(id, column, data) {
+    let formData = new FormData();
+    formData.append('id', id);
+    formData.append('column', column);
+    formData.append('data', data);
+    return sendRequest("/admin?action=userupdate", formData);
+}
+
+function sendRequestUserList(adminOnly = true) {
+    let formData = new FormData();
+    formData.append('adminonly', adminOnly);
+    return sendRequest("/admin?action=userlist", formData);
+}
+
 function sendRequest(argument, body) {
     return new Promise((resolve, reject) => {
         fetch(URL + argument, {

@@ -14,7 +14,7 @@ import net.otlg.apiserver.config.ServerConfigFile;
 import net.otlg.apiserver.config.ServerInternalConfig;
 import net.otlg.apiserver.net.ServerChannelInitializer;
 import net.otlg.apiserver.net.ServerExceptionHandler;
-import net.otlg.studentcheckin.RequestHandler;
+import net.otlg.apiserver.net.RequestHandler;
 
 import javax.net.ssl.SSLException;
 import java.io.File;

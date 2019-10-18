@@ -8,9 +8,7 @@ import io.netty.handler.codec.http.cookie.DefaultCookie;
 import io.netty.handler.codec.http.cookie.ServerCookieEncoder;
 import net.otlg.apiserver.APIServer;
 import net.otlg.apiserver.net.wrapper.HttpRequestWrapper;
-import net.otlg.studentcheckin.RequestHandler;
 
-import java.nio.charset.Charset;
 import java.util.List;
 
 public class ServerInboundHandler extends ChannelInboundHandlerAdapter {
@@ -35,7 +33,9 @@ public class ServerInboundHandler extends ChannelInboundHandlerAdapter {
             for (RequestHandler handler : server.handlers()) {
                 try {
                     handler.handle(addr, ctx, request, result);
-                } catch (Exception e) {
+                } catch (Throwable e) {
+                    System.err.println("Error while handling client " + ctx.channel().remoteAddress().toString());
+                    //System.err.println(">> " + e.getMessage());
                     e.printStackTrace();
                 }
             }

@@ -6,6 +6,7 @@
     <title>Check-in - Administration</title>
 
     <script src="../ajax.js"></script>
+    <script src="../utils.js"></script>
     <script src="edit.js"></script>
     <link rel="stylesheet" href="../bootstrap.css">
     <link rel="stylesheet" href="../custom.css">
@@ -14,11 +15,47 @@
 
 <div id="menu" class="row" style="padding-bottom: 20px; width: 99vw;">
     <div class="col-4 input-padded">
-        <button class="btn btn-danger" onclick="window.location.href = './account.html'">
+        <button class="btn btn-danger" onclick="history.back();">
             Back
         </button>
     </div>
 </div>
+
+<form method="post" style="padding: 30px">
+
+    <table>
+        <tr>
+            <td style="padding-right: 50px">ID</td>
+            <td style="min-width: 300px"><input type="text" class="form-control" id="input-id" disabled></td>
+        </tr>
+        <tr>
+            <td>Name</td>
+            <td><input type="text" class="form-control" id="input-name" oninput="sendRequestUserUpdate(uid,'name',document.getElementById('input-name').value)"></td>
+        </tr>
+        <tr>
+            <td>Nick</td>
+            <td><input type="text" class="form-control" id="input-nick" oninput="sendRequestUserUpdate(uid,'nick',document.getElementById('input-nick').value)"></td>
+        </tr>
+        <tr>
+            <td>Email</td>
+            <td><input type="text" class="form-control" id="input-email" oninput="sendRequestUserUpdate(uid,'email',document.getElementById('input-email').value)"></td>
+        </tr>
+        <tr>
+            <td>Classroom</td>
+            <td><input type="text" class="form-control" id="input-classroom" oninput="sendRequestUserUpdate(uid,'class',document.getElementById('input-classroom').value)"></td>
+        </tr>
+        <tr>
+            <td>Perms</td>
+            <td><textarea class="form-control" id="input-perms" rows="10" cols="50" oninput="sendRequestUserUpdate(uid,'perm',JSON.stringify(document.getElementById('input-perms').value.split('\n')))"></textarea></td>
+        </tr>
+
+        <tr>
+            <td>Password</td>
+            <td><input type="text" class="form-control" id="input-password" oninput="sendRequestUserUpdate(uid,'password',document.getElementById('input-password').value)" placeholder="Type here to set password"></td>
+        </tr>
+    </table>
+
+</form>
 
 </body>
 </html>

@@ -5,6 +5,7 @@ import io.netty.handler.codec.http.HttpResponseStatus;
 import net.otlg.apiserver.APIServer;
 import net.otlg.apiserver.config.ConfigLoader;
 import net.otlg.apiserver.config.ServerConfigFile;
+import net.otlg.apiserver.net.RequestHandler;
 import net.otlg.apiserver.net.ResultContainer;
 import net.otlg.apiserver.net.wrapper.HttpRequestWrapper;
 import net.otlg.studentcheckin.etc.LogEntryWrapper;
@@ -76,36 +77,69 @@ public class Server {
                 session.update(false);
 
                 if (path.equals("/admin")) {
-                    if (action.equals("list")) {
-                        if (session.checkPerm("admin", result)) {
-                            List<LogEntryWrapper> data = SQLCommand.getDataList(request.getPost(), server.getDatabase(), true);
-                            result.set(ConfigLoader.GSON.toJson(data));
-                        }
-                        return;
-                    }
-                    if (action.equals("listadmin")) {
-                        if (session.checkPerm("userman", result)) {
-                            List<UserEntryWrapper> data = SQLCommand.getAdmins(server.getDatabase(), true);
-                            result.set(ConfigLoader.GSON.toJson(data));
-                        }
-                        return;
-                    } else if (action.equals("delete")) {
-                        if (session.checkPerm("delete", result)) {
-                            int id = Integer.parseInt(request.getPost().get("id"));
-                            SQLCommand.deleteLog(id, server.getDatabase(), true);
-                            resetLastUpdate();
+                    switch (action) {
+                        case "list":
+                            if (session.checkPerm(Permissions.ADMIN_LOG_VIEW, result)) {
+                                List<LogEntryWrapper> data = SQLCommand.getDataList(request.getPost(), server.getDatabase(), true);
+                                result.set(ConfigLoader.GSON.toJson(data));
+                            }
+                            return;
+
+                        case "userlist":
+                            if (session.checkPerm(Permissions.ADMIN_ACCOUNT_VIEW, result)) {
+                                List<UserEntryWrapper> data = SQLCommand.getUsers(server.getDatabase(), request.getPost().get("adminonly").equals("true"), true);
+                                result.set(ConfigLoader.GSON.toJson(data));
+                            }
+                            return;
+
+                        case "userupdate":
+                            if (session.checkPerm(Permissions.ADMIN_ACCOUNT_EDIT, result)) {
+                                String column = request.getPost().get("column").replaceAll("[^a-zA-Z0-9]", "");
+
+                                switch (column.toLowerCase()) {
+                                    case "password":
+                                        if (!session.checkPerm(Permissions.ADMIN_ACCOUNT_PASSWORD, result)) return;
+                                        break;
+
+                                    case "perm":
+                                        if (!session.checkPerm(Permissions.ADMIN_ACCOUNT_GRANT, result)) return;
+                                        break;
+                                }
+
+
+                                SQLCommand.updateUser(
+                                        Integer.parseInt(request.getPost().get("id")),
+                                        column, request.getPost().get("data"),
+                                        server.getDatabase(), true);
+                            }
                             result.set("OK");
                             return;
-                        }
-                        return;
-                    } else if (action.equals("poll")) {
-                        if (session.checkPerm("admin", result)) {
-                            result.set(String.valueOf(lastUpdate));
-                        }
-                        return;
+
+                        case "useradd":
+                            if (session.checkPerm(Permissions.ADMIN_ACCOUNT_ADD, result)) {
+
+                            }
+                            result.set("OK");
+                            return;
+
+                        case "delete":
+                            if (session.checkPerm(Permissions.ADMIN_LOG_DELETE, result)) {
+                                int id = Integer.parseInt(request.getPost().get("id"));
+                                SQLCommand.deleteLog(id, server.getDatabase(), true);
+                                resetLastUpdate();
+                                result.set("OK");
+                                return;
+                            }
+                            return;
+
+                        case "poll":
+                            if (session.checkPerm(Permissions.ADMIN_LOG_VIEW, result)) {
+                                result.set(String.valueOf(lastUpdate));
+                            }
+                            return;
+
                     }
                 }
-
                 result.setResponseStatus(HttpResponseStatus.NOT_FOUND);
             }
 

@@ -82,11 +82,11 @@ public class SQLCommand {
         }
     }
 
-    public static List<UserEntryWrapper> getAdmins(Connection connection, boolean autoClose) throws SQLException {
+    public static List<UserEntryWrapper> getUsers(Connection connection, boolean adminOnly, boolean autoClose) throws SQLException {
         try {
             List<UserEntryWrapper> list = new ArrayList<>();
 
-            PreparedStatement statement = connection.prepareStatement("SELECT id, name, email, nick, class, perm FROM studentcheckin.user WHERE perm LIKE '%admin%';");
+            PreparedStatement statement = connection.prepareStatement("SELECT id, name, email, nick, class, perm FROM studentcheckin.user" + (adminOnly ? " WHERE perm != '[]';" : ";"));
             statement.execute();
 
             ResultSet resultSet = statement.getResultSet();
@@ -172,6 +172,27 @@ public class SQLCommand {
         try {
             PreparedStatement statement = connection.prepareStatement("DELETE FROM `log` WHERE `id` = ?");
             statement.setInt(1, id);
+            statement.execute();
+        } finally {
+            if (autoClose) connection.close();
+        }
+    }
+
+    public static void updateUser(int id, String column, Object data, Connection connection, boolean autoClose) throws SQLException {
+        try {
+            switch (column.toLowerCase()) {
+                case "id":
+                    throw new IllegalAccessError("`id` column is not editable!");
+
+                case "password":
+                    data = BCrypt.hashpw((String) data, BCrypt.gensalt());
+                    break;
+            }
+
+            PreparedStatement statement = connection.prepareStatement(
+                    "UPDATE `user` SET `" + column + "` = ? WHERE `id` = ?");
+            statement.setObject(1, data);
+            statement.setInt(2, id);
             statement.execute();
         } finally {
             if (autoClose) connection.close();

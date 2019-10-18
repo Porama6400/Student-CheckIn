@@ -1,4 +1,4 @@
-package net.otlg.studentcheckin;
+package net.otlg.apiserver.net;
 
 import io.netty.channel.ChannelHandlerContext;
 import net.otlg.apiserver.net.wrapper.HttpRequestWrapper;

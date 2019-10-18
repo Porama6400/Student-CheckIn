@@ -5,7 +5,7 @@ document.querySelector("#form_login_submit").onclick = (e) => {
         document.querySelector("#form_login_password").value,
     ).then(async data => {
         if (data.msg === "AUTH/SUCCESS" || data.msg === "AUTH/AUTHENTICATED") {
-            if (await sendRequestCheckPerm("admin") === false) {
+            if (await sendRequestCheckPerm("admin.log.view") === false) {
                 alert("You do not have permission to access admin panel!");
                 document.location.href = "./";
             }
@@ -13,10 +13,10 @@ document.querySelector("#form_login_submit").onclick = (e) => {
         }
         else {
             document.getElementsByClassName("error")[0].hidden = false;
-            document.getElementsByClassName("error")[0].innerHTML = "Authentication failed";
+            document.getElementsByClassName("error")[0].innerText = "Authentication failed";
         }
     }).catch(data => {
         document.getElementsByClassName("error")[0].hidden = false;
-        document.getElementsByClassName("error")[0].innerHTML = data.toString();
+        document.getElementsByClassName("error")[0].innerText = data.toString();
     });
 }

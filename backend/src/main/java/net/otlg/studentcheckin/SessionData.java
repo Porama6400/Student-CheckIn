@@ -56,10 +56,17 @@ public class SessionData {
         }
     }
 
+    public boolean checkPerm(Permissions perm) {
+        return checkPerm(perm.getNode());
+    }
+
     public boolean checkPerm(String perm) {
         return checkPerm(perm, null);
     }
 
+    public boolean checkPerm(Permissions perm, ResultContainer resultContainer) {
+        return checkPerm(perm.getNode(),resultContainer);
+    }
     public boolean checkPerm(String perm, ResultContainer resultContainer) {
         boolean boolResult = getPerms().contains(perm);
 
