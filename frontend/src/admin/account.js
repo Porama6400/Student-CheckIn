@@ -1,12 +1,12 @@
-sendRequestCheckSession().then(data => {
-    if (data.msg !== "AUTH/OK") window.location.href = "./"
-});
+/*
+ * © 2019. otlg.net, All right reserved
+ */
+
+checkSession();
 
 async function run() {
     const editPerm = await sendRequestCheckPerm("admin.account.edit");
-    var adminOnly = document.getElementById("checkbox-admin").checked;
-    localStorage.setItem("editAdminOnly",adminOnly);
-    sendRequestUserList(adminOnly).then(a => {
+    sendRequestUserList(sessionStorage.getItem("editAdminOnly")).then(a => {
         var obj = JSON.parse(a.msg);
         console.log(obj);
 
@@ -23,7 +23,7 @@ async function run() {
             td[1].textContent = entry.nick;
             td[2].textContent = entry.email;
             td[3].textContent = entry.classroom;
-            td[4].textContent = entry.perm;
+            td[4].textContent = entry.perm.split("admin.account").join("acc").split("admin.log").join("log").slice(0, 150);
 
             let button = td[5].querySelector("button");
             button.onclick = function () {
@@ -38,10 +38,18 @@ async function run() {
     });
 }
 
-run();
-
 window.onload = function () {
+    document.getElementById("checkbox-admin").checked = sessionStorage.getItem("editAdminOnly") === "true";
     document.getElementById("checkbox-admin").onclick = function () {
-      run();
+        var adminOnly = document.getElementById("checkbox-admin").checked;
+        sessionStorage.setItem("editAdminOnly", adminOnly);
+        run();
     };
+    run();
+
+    sendRequestCheckPerm("admin.account.add").then(grant => {
+        if (!grant) {
+            document.getElementById("button-insert").style.display = "none";
+        }
+    });
 };

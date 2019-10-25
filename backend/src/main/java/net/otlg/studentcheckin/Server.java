@@ -25,7 +25,7 @@ public class Server {
 
     public final File configFile = new File("./config.json");
     private final String VERSION = "1.0";
-    private HashMap<String, SessionData> sessionMap = new HashMap<>();
+    private HashMap<String, UserData> sessionMap = new HashMap<>();
 
     private long lastUpdate = 0;
 
@@ -37,7 +37,7 @@ public class Server {
         lastUpdate = System.currentTimeMillis();
     }
 
-    public HashMap<String, SessionData> getSessionMap() {
+    public HashMap<String, UserData> getSessionMap() {
         return sessionMap;
     }
 
@@ -51,7 +51,7 @@ public class Server {
 
             @Override
             public void handle(String addr, ChannelHandlerContext ctx, HttpRequestWrapper request, ResultContainer result) throws SQLException {
-                SessionData session = UserUtils.getSession(request, sessionMap);
+                UserData session = UserUtils.getSession(request, sessionMap);
 
                 String action = request.getGetString("action");
                 String path = request.getQueryStringDecoder().path();
@@ -94,6 +94,10 @@ public class Server {
 
                         case "userupdate":
                             if (session.checkPerm(Permissions.ADMIN_ACCOUNT_EDIT, result)) {
+                                if (session.checkPerm(Permissions.ADMIN_ACCOUNT_PREVENT_SELF_EDIT)) {
+                                    result.set("Self editing is not allowed!");
+                                    return;
+                                }
                                 String column = request.getPost().get("column").replaceAll("[^a-zA-Z0-9]", "");
 
                                 switch (column.toLowerCase()) {
@@ -106,20 +110,68 @@ public class Server {
                                         break;
                                 }
 
+                                int id = Integer.parseInt(request.getPost().get("id"));
+
+                                UserData target = new UserData(server, id);
+                                if (target.checkPerm(Permissions.ADMIN_ACCOUNT_PREVENT_EDIT)
+                                        && !session.checkPerm(Permissions.ADMIN_ACCOUNT_PREVENT_EDIT_BYPASS)
+                                        && target.getUserId() != session.getUserId()) {
+                                    result.setResponseStatus(HttpResponseStatus.UNAUTHORIZED);
+                                    result.set("");
+                                    return;
+                                }
 
                                 SQLCommand.updateUser(
-                                        Integer.parseInt(request.getPost().get("id")),
+                                        id,
                                         column, request.getPost().get("data"),
                                         server.getDatabase(), true);
+
+                                result.set("OK");
                             }
-                            result.set("OK");
+                            return;
+
+                        case "usercheckperm":
+                            if (session.checkPerm(Permissions.ADMIN_ACCOUNT_EDIT, result)) {
+
+                                int id = Integer.parseInt(request.getPost().get("id"));
+                                UserData userData = new UserData(server, id);
+
+                                if (userData.checkPerm(request.getPost().get("node"))) {
+                                    result.set("PERM/TRUE");
+                                } else {
+                                    result.set("PERM/FALSE");
+                                }
+                            }
                             return;
 
                         case "useradd":
                             if (session.checkPerm(Permissions.ADMIN_ACCOUNT_ADD, result)) {
-
+                                SQLCommand.addUser(request.getPost(), server.getDatabase(), true);
+                                result.set("OK");
                             }
-                            result.set("OK");
+                            return;
+
+                        case "userdelete":
+                            if (session.checkPerm(Permissions.ADMIN_ACCOUNT_DELETE, result)) {
+
+                                if (session.checkPerm(Permissions.ADMIN_ACCOUNT_PREVENT_SELF_EDIT)) {
+                                    result.set("Self editing is not allowed!");
+                                    return;
+                                }
+
+                                int id = Integer.parseInt(request.getPost().get("id"));
+
+                                UserData target = new UserData(server, id);
+                                if (target.checkPerm(Permissions.ADMIN_ACCOUNT_PREVENT_EDIT) && !session.checkPerm(Permissions.ADMIN_ACCOUNT_PREVENT_EDIT_BYPASS)) {
+                                    result.setResponseStatus(HttpResponseStatus.UNAUTHORIZED);
+                                    result.set("");
+                                    return;
+                                }
+
+                                SQLCommand.deleteUser(id, server.getDatabase(), true);
+                                result.set("OK");
+                                return;
+                            }
                             return;
 
                         case "delete":
@@ -161,7 +213,7 @@ public class Server {
                 }
             }
 
-            public void handleAuth(SessionData session, String action, String addr, HttpRequestWrapper
+            public void handleAuth(UserData session, String action, String addr, HttpRequestWrapper
                     request, ResultContainer result) throws SQLException {
                 if (action.equals("login")) {
                     if (session == null) {
@@ -169,7 +221,7 @@ public class Server {
                         String pass = request.getPost().get("password");
                         if (SQLCommand.checkPassword(user, pass, server.getDatabase(), true)) {
                             String uuid = UUID.randomUUID().toString();
-                            sessionMap.put(uuid, new SessionData(server, uuid, user, SQLCommand.getUserId(user, server.getDatabase(), true)));
+                            sessionMap.put(uuid, new UserData(server, uuid, user, SQLCommand.getUserId(user, server.getDatabase(), true)));
                             UserUtils.setSession(result, uuid);
                             System.out.println(user + " logged in from " + addr);
                             result.set("AUTH/SUCCESS");
@@ -206,7 +258,14 @@ public class Server {
                             result.setResponseStatus(HttpResponseStatus.UNAUTHORIZED);
                         }
                     }
-
+                } else if (action.equalsIgnoreCase("isme")) {
+                    if (session == null) {
+                        result.set("AUTH/NO_SESSION");
+                    } else if (session.getUserId() == Integer.parseInt(request.getPost().get("id"))) {
+                        result.set("AUTH/TRUE");
+                    } else {
+                        result.set("AUTH/FALSE");
+                    }
                 }
             }
 

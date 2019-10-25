@@ -1,8 +1,11 @@
-//const id = sessionStorage.getItem("sc_edit_id");
-//sessionStorage.removeItem("sc_edit_id");
-const uid = getGetParam("id");
+/*
+ * © 2019. otlg.net, All right reserved
+ */
 
-var adminOnly = localStorage.getItem("editAdminOnly");
+checkSession();
+
+const uid = getGetParam("id");
+var adminOnly = sessionStorage.getItem("editAdminOnly");
 if (adminOnly === undefined) adminOnly = true;
 
 var data;
@@ -42,15 +45,49 @@ window.onload = function () {
         })
     });
 
+    sendRequestCheckUserPerm(uid,"admin.account.noedit").then(async noedit => {
+
+
+
+        if((noedit && !await sendRequestCheckPerm("admin.account.noeditbypass") )||
+            (await sendRequestIsMe(uid) && await sendRequestCheckPerm("admin.account.noselfedit")))
+        {
+            let input = document.querySelectorAll("input").forEach(a => {
+                a.disabled = true;
+            });
+
+            input = document.querySelectorAll("textarea").forEach(a => {
+                a.disabled = true;
+            });
+
+            document.getElementById("button-delete").disabled = true;
+        }
+    });
+
     sendRequestCheckPerm("admin.account.grant").then(grant => {
-        if(!grant){
+        if (!grant) {
             document.getElementById("input-perms").disabled = true;
         }
-    })
+    });
 
     sendRequestCheckPerm("admin.account.password").then(grant => {
-        if(!grant){
+        if (!grant) {
             document.getElementById("input-password").disabled = true;
         }
-    })
+    });
+
+    let buttonDelete = document.getElementById("button-delete");
+    buttonDelete.onclick = () => {
+        sendRequestUserDelete(uid).then(a => {
+            sessionStorage.setItem("editAdminOnly", false);
+            document.location.href = "./account.html";
+        });
+
+
+        sendRequestCheckPerm("admin.account.delete").then(grant => {
+            if (!grant) {
+            buttonDelete.style.display = "hidden";
+            }
+        });
+    }
 };

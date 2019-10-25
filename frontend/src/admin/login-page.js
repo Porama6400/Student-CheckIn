@@ -1,3 +1,7 @@
+/*
+ * © 2019. otlg.net, All right reserved
+ */
+
 document.querySelector("#form_login_submit").onclick = (e) => {
     e.preventDefault();
     sendRequestLogin(

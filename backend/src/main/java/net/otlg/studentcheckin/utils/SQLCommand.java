@@ -55,6 +55,21 @@ public class SQLCommand {
         }
     }
 
+    public static String getUserNameById(int id, Connection connection, boolean autoClose) throws SQLException {
+        try {
+            PreparedStatement statement = connection.prepareStatement("SELECT `user` FROM user WHERE `id` = ?;");
+            statement.setInt(1, id);
+            statement.execute();
+
+            ResultSet resultSet = statement.getResultSet();
+            if (!resultSet.next()) return null;
+            return resultSet.getString(1);
+
+        } finally {
+            if (autoClose) connection.close();
+        }
+    }
+
     public static boolean checkPassword(String name, String password, Connection connection, boolean autoClose) throws SQLException {
         try {
             String dbhash = getPasswordHash(name, connection, false);
@@ -193,6 +208,31 @@ public class SQLCommand {
                     "UPDATE `user` SET `" + column + "` = ? WHERE `id` = ?");
             statement.setObject(1, data);
             statement.setInt(2, id);
+            statement.execute();
+        } finally {
+            if (autoClose) connection.close();
+        }
+    }
+
+    public static void deleteUser(int id, Connection connection, boolean autoClose) throws SQLException {
+        try {
+            PreparedStatement statement = connection.prepareStatement("DELETE FROM `user` WHERE `id` = ?");
+            statement.setInt(1, id);
+            statement.execute();
+        } finally {
+            if (autoClose) connection.close();
+        }
+    }
+
+    public static void addUser(HttpFormPostDecoder post, Connection connection, boolean autoClose) throws SQLException {
+        try {
+            PreparedStatement statement = connection.prepareStatement("INSERT INTO `studentcheckin`.`user` (`user`, `name`, `nick`, `email`, `class`,`password`) VALUES (?,?,?,?,?,?);");
+            statement.setString(1, post.get("input-username"));
+            statement.setString(2, post.get("input-name"));
+            statement.setString(3, post.get("input-nick"));
+            statement.setString(4, post.get("input-email"));
+            statement.setString(5, post.get("input-classroom"));
+            statement.setString(6, BCrypt.hashpw(post.get("input-password"), BCrypt.gensalt()));
             statement.execute();
         } finally {
             if (autoClose) connection.close();

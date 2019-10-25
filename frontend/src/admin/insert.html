@@ -1,0 +1,85 @@
+<!--
+  ~ © 2019. otlg.net, All right reserved
+  -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+    <meta charset="UTF-8">
+    <title>Check-in - Administration</title>
+
+    <script src="../ajax.js">
+        checkSession();
+    </script>
+    <script src="../utils.js"></script>
+    <link rel="stylesheet" href="../bootstrap.css">
+    <link rel="stylesheet" href="../custom.css">
+</head>
+<body>
+
+<div id="menu" class="row" style="padding-bottom: 20px; width: 99vw;">
+    <div class="col-4 input-padded">
+        <button class="btn btn-danger" onclick="history.back();">
+            Back
+        </button>
+    </div>
+</div>
+
+<form style="padding: 30px">
+
+    <table>
+        <tr>
+            <td>Username</td>
+            <td style="width: 300px"><input type="text" class="form-control" id="input-username"></td>
+        </tr>
+        <tr>
+            <td>Name</td>
+            <td><input type="text" class="form-control" id="input-name"></td>
+        </tr>
+        <tr>
+            <td>Nick</td>
+            <td><input type="text" class="form-control" id="input-nick"></td>
+        </tr>
+        <tr>
+            <td>Email</td>
+            <td><input type="text" class="form-control" id="input-email"></td>
+        </tr>
+        <tr>
+            <td>Classroom</td>
+            <td><input type="text" class="form-control" id="input-classroom"></td>
+        </tr>
+        <tr>
+            <td>Password</td>
+            <td><input type="text" class="form-control" id="input-password"></td>
+        </tr>
+        <tr>
+            <td colspan="2">
+                <button style="width: 100%" class="btn btn-primary">Add user</button>
+            </td>
+        </tr>
+    </table>
+
+</form>
+<script>
+    document.querySelector("form").onsubmit = (e) => {
+        e.preventDefault();
+        let formData = new FormData();
+        formData.append('input-username', document.getElementById("input-username").value);
+        formData.append('input-name', document.getElementById("input-name").value);
+        formData.append('input-nick', document.getElementById("input-nick").value);
+        formData.append('input-email', document.getElementById("input-email").value);
+        formData.append('input-classroom', document.getElementById("input-classroom").value);
+        formData.append('input-password', document.getElementById("input-password").value);
+
+        return sendRequest("/admin?action=useradd", formData).then(a => {
+            if(a.status === 401){
+                alert("UNAUTHORIZED U NUB! LOL!")
+            }
+            sessionStorage.setItem("editAdminOnly",false);
+            document.location.href = "./account.html";
+        });
+    }
+</script>
+</body>
+</html>

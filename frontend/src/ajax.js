@@ -1,4 +1,14 @@
+/*
+ * © 2019. otlg.net, All right reserved
+ */
+
 const URL = "http://localhost:8440";
+
+function checkSession() {
+    sendRequestCheckSession().then(data => {
+        if (data.msg !== "AUTH/OK") window.location.href = "./"
+    });
+}
 
 function sendRequestLogin(user, password) {
     let formData = new FormData();
@@ -47,12 +57,41 @@ function sendRequestCheckPerm(node) {
     });
 }
 
+function sendRequestCheckUserPerm(id, node) {
+    return new Promise((resolve, reject) => {
+        let formData = new FormData();
+        formData.append('id', id);
+        formData.append('node', node);
 
-function sendRequestDeleteLog(id) {
+        return sendRequest("/admin?action=usercheckperm", formData)
+            .then((a) => resolve(a.msg === "PERM/TRUE"))
+            .catch((b) => reject(b));
+    });
+}
+
+
+function sendRequestLogDelete(id) {
     let formData = new FormData();
     formData.append('id', id);
 
     return sendRequest("/admin?action=delete", formData);
+}
+function sendRequestIsMe(id) {
+    return new Promise((resolve, reject) => {
+        let formData = new FormData();
+        formData.append('id', id);
+
+        return sendRequest("/auth?action=isme", formData)
+            .then((a) => resolve(a.msg === "AUTH/TRUE"))
+            .catch((b) => reject(b));
+    });
+}
+
+function sendRequestUserDelete(id) {
+    let formData = new FormData();
+    formData.append('id', id);
+
+    return sendRequest("/admin?action=userdelete", formData);
 }
 
 function sendRequestUserUpdate(id, column, data) {

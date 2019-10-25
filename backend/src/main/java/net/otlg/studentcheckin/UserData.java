@@ -10,21 +10,31 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public class SessionData {
+public class UserData {
     private final APIServer server;
 
-    private final String sessid;
-    private final String user;
-    private final int userId;
+    private String sessid;
+    private String user;
+    private int userId;
     private List<String> perms = new ArrayList<>();
 
     private long lastDbFetch = 0;
 
-    public SessionData(APIServer server, String sessionID, String user, int userId) {
+    public UserData(APIServer server, String sessionID, String user, int userId) {
         this.server = server;
         this.sessid = sessionID;
         this.user = user;
         this.userId = userId;
+    }
+
+    public UserData(APIServer server, int userId) {
+        this(server, null, null, userId);
+        try {
+            this.user = SQLCommand.getUserNameById(userId, server.getDatabase(), true);
+            update(true);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     public int getUserId() {
@@ -56,19 +66,18 @@ public class SessionData {
         }
     }
 
-    public boolean checkPerm(Permissions perm) {
-        return checkPerm(perm.getNode());
+    public boolean checkPerm(String perm) {
+        return checkPerm(Permissions.byNode(perm));
     }
 
-    public boolean checkPerm(String perm) {
+    public boolean checkPerm(Permissions perm) {
         return checkPerm(perm, null);
     }
 
     public boolean checkPerm(Permissions perm, ResultContainer resultContainer) {
-        return checkPerm(perm.getNode(),resultContainer);
-    }
-    public boolean checkPerm(String perm, ResultContainer resultContainer) {
-        boolean boolResult = getPerms().contains(perm);
+
+        boolean boolResult = getPerms().contains(perm.getNode());
+        boolResult |= (getPerms().contains(Permissions.SUPERUSER.getNode()) && perm.isSuperUserAllow());
 
         if (!boolResult && resultContainer != null) {
             resultContainer.setResponseStatus(HttpResponseStatus.UNAUTHORIZED);

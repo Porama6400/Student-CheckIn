@@ -1,6 +1,8 @@
-sendRequestCheckSession().then(data => {
-    if (data.msg !== "AUTH/OK") window.location.href = "./"
-});
+/*
+ * © 2019. otlg.net, All right reserved
+ */
+
+checkSession();
 
 let listData;
 let lastLogUpdate = 0;
@@ -107,7 +109,7 @@ async function updateListData(verbose) {
 
             let button = td[4].querySelector("button");
             button.onclick = function () {
-                sendRequestDeleteLog(entry.id).then((result) => {
+                sendRequestLogDelete(entry.id).then((result) => {
                     updateListData();
                 });
             };
