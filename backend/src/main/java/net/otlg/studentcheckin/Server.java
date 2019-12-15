@@ -79,46 +79,47 @@ public class Server {
                 if (path.equals("/admin")) {
                     switch (action) {
                         case "list":
-                            if (session.checkPerm(Permissions.ADMIN_LOG_VIEW, result)) {
+                            if (session.hasPerm(Permissions.ADMIN_LOG_VIEW, result)) {
                                 List<LogEntryWrapper> data = SQLCommand.getDataList(request.getPost(), server.getDatabase(), true);
                                 result.set(ConfigLoader.GSON.toJson(data));
                             }
                             return;
 
                         case "userlist":
-                            if (session.checkPerm(Permissions.ADMIN_ACCOUNT_VIEW, result)) {
+                            if (session.hasPerm(Permissions.ADMIN_ACCOUNT_VIEW, result)) {
                                 List<UserEntryWrapper> data = SQLCommand.getUsers(server.getDatabase(), request.getPost().get("adminonly").equals("true"), true);
                                 result.set(ConfigLoader.GSON.toJson(data));
                             }
                             return;
 
+                        case "usercheckcanupdate":
+                            if (session.hasPerm(Permissions.ADMIN_ACCOUNT_EDIT, result)) {
+                                int id = Integer.parseInt(request.getPost().get("id"));
+                                UserData target = new UserData(server, id);
+                                if (!session.canEdit(target, result)) return;
+                                result.set("OK");
+                            }
+                            return;
                         case "userupdate":
-                            if (session.checkPerm(Permissions.ADMIN_ACCOUNT_EDIT, result)) {
-                                if (session.checkPerm(Permissions.ADMIN_ACCOUNT_PREVENT_SELF_EDIT)) {
-                                    result.set("Self editing is not allowed!");
-                                    return;
-                                }
+                            if (session.hasPerm(Permissions.ADMIN_ACCOUNT_EDIT, result)) {
+                                int id = Integer.parseInt(request.getPost().get("id"));
+                                UserData target = new UserData(server, id);
+
+                                if (!session.canEdit(target, result)) return;
+
                                 String column = request.getPost().get("column").replaceAll("[^a-zA-Z0-9]", "");
 
                                 switch (column.toLowerCase()) {
                                     case "password":
-                                        if (!session.checkPerm(Permissions.ADMIN_ACCOUNT_PASSWORD, result)) return;
+                                        if (!session.hasPerm(Permissions.ADMIN_ACCOUNT_PASSWORD, result)) return;
                                         break;
 
                                     case "perm":
-                                        if (!session.checkPerm(Permissions.ADMIN_ACCOUNT_GRANT, result)) return;
+                                        if (!session.hasPerm(Permissions.ADMIN_ACCOUNT_GRANT, result)) return;
                                         break;
-                                }
-
-                                int id = Integer.parseInt(request.getPost().get("id"));
-
-                                UserData target = new UserData(server, id);
-                                if (target.checkPerm(Permissions.ADMIN_ACCOUNT_PREVENT_EDIT)
-                                        && !session.checkPerm(Permissions.ADMIN_ACCOUNT_PREVENT_EDIT_BYPASS)
-                                        && target.getUserId() != session.getUserId()) {
-                                    result.setResponseStatus(HttpResponseStatus.UNAUTHORIZED);
-                                    result.set("");
-                                    return;
+                                    default:
+                                        if (!session.hasPerm(Permissions.ADMIN_ACCOUNT_DETAILS, result)) return;
+                                        break;
                                 }
 
                                 SQLCommand.updateUser(
@@ -131,12 +132,12 @@ public class Server {
                             return;
 
                         case "usercheckperm":
-                            if (session.checkPerm(Permissions.ADMIN_ACCOUNT_EDIT, result)) {
+                            if (session.hasPerm(Permissions.ADMIN_ACCOUNT_EDIT, result)) {
 
                                 int id = Integer.parseInt(request.getPost().get("id"));
                                 UserData userData = new UserData(server, id);
 
-                                if (userData.checkPerm(request.getPost().get("node"))) {
+                                if (userData.hasPerm(request.getPost().get("node"))) {
                                     result.set("PERM/TRUE");
                                 } else {
                                     result.set("PERM/FALSE");
@@ -145,24 +146,22 @@ public class Server {
                             return;
 
                         case "useradd":
-                            if (session.checkPerm(Permissions.ADMIN_ACCOUNT_ADD, result)) {
+                            if (session.hasPerm(Permissions.ADMIN_ACCOUNT_ADD, result)) {
                                 SQLCommand.addUser(request.getPost(), server.getDatabase(), true);
                                 result.set("OK");
                             }
                             return;
 
                         case "userdelete":
-                            if (session.checkPerm(Permissions.ADMIN_ACCOUNT_DELETE, result)) {
+                            if (session.hasPerm(Permissions.ADMIN_ACCOUNT_DELETE, result)) {
+                                int id = Integer.parseInt(request.getPost().get("id"));
+                                UserData target = new UserData(server, id);
 
-                                if (session.checkPerm(Permissions.ADMIN_ACCOUNT_PREVENT_SELF_EDIT)) {
-                                    result.set("Self editing is not allowed!");
+                                if(!session.canEdit(target,result)){
                                     return;
                                 }
 
-                                int id = Integer.parseInt(request.getPost().get("id"));
-
-                                UserData target = new UserData(server, id);
-                                if (target.checkPerm(Permissions.ADMIN_ACCOUNT_PREVENT_EDIT) && !session.checkPerm(Permissions.ADMIN_ACCOUNT_PREVENT_EDIT_BYPASS)) {
+                                if (target.hasPerm(Permissions.ADMIN_ACCOUNT_PREVENT_EDIT) && !session.hasPerm(Permissions.ADMIN_ACCOUNT_PREVENT_EDIT_BYPASS)) {
                                     result.setResponseStatus(HttpResponseStatus.UNAUTHORIZED);
                                     result.set("");
                                     return;
@@ -175,7 +174,7 @@ public class Server {
                             return;
 
                         case "delete":
-                            if (session.checkPerm(Permissions.ADMIN_LOG_DELETE, result)) {
+                            if (session.hasPerm(Permissions.ADMIN_LOG_DELETE, result)) {
                                 int id = Integer.parseInt(request.getPost().get("id"));
                                 SQLCommand.deleteLog(id, server.getDatabase(), true);
                                 resetLastUpdate();
@@ -185,7 +184,7 @@ public class Server {
                             return;
 
                         case "poll":
-                            if (session.checkPerm(Permissions.ADMIN_LOG_VIEW, result)) {
+                            if (session.hasPerm(Permissions.ADMIN_LOG_VIEW, result)) {
                                 result.set(String.valueOf(lastUpdate));
                             }
                             return;
@@ -250,7 +249,7 @@ public class Server {
                         result.set("AUTH/NO_SESSION");
                     } else {
                         session.update(false);
-                        if (session.checkPerm(request.getPost().get("node")))
+                        if (session.hasPerm(request.getPost().get("node")))
                             result.set("AUTH/OK");
                         else {
                             session.update(false);

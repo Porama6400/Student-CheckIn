@@ -55,4 +55,6 @@
 
 **/*.class
 
+**/config.json
+
 # End of https://www.gitignore.io/api/gradle

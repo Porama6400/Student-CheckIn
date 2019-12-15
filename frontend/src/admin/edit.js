@@ -45,23 +45,20 @@ window.onload = function () {
         })
     });
 
-    sendRequestCheckUserPerm(uid,"admin.account.noedit").then(async noedit => {
 
+    sendRequestCheckCanUpdate(uid).then ( data => {
+        if(data.status === 200) return;
+        document.getElementById("alert").innerText = data.msg;
 
+        let input = document.querySelectorAll("input").forEach(a => {
+            a.disabled = true;
+        });
 
-        if((noedit && !await sendRequestCheckPerm("admin.account.noeditbypass") )||
-            (await sendRequestIsMe(uid) && await sendRequestCheckPerm("admin.account.noselfedit")))
-        {
-            let input = document.querySelectorAll("input").forEach(a => {
-                a.disabled = true;
-            });
+        input = document.querySelectorAll("textarea").forEach(a => {
+            a.disabled = true;
+        });
 
-            input = document.querySelectorAll("textarea").forEach(a => {
-                a.disabled = true;
-            });
-
-            document.getElementById("button-delete").disabled = true;
-        }
+        document.getElementById("button-delete").disabled = true;
     });
 
     sendRequestCheckPerm("admin.account.grant").then(grant => {

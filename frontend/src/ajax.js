@@ -76,6 +76,13 @@ function sendRequestLogDelete(id) {
 
     return sendRequest("/admin?action=delete", formData);
 }
+
+function sendRequestCheckCanUpdate(id) {
+    let formData = new FormData();
+    formData.append('id', id);
+
+    return sendRequest("/admin?action=usercheckcanupdate", formData);
+}
 function sendRequestIsMe(id) {
     return new Promise((resolve, reject) => {
         let formData = new FormData();

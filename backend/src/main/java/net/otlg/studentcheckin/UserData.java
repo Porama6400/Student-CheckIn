@@ -66,15 +66,15 @@ public class UserData {
         }
     }
 
-    public boolean checkPerm(String perm) {
-        return checkPerm(Permissions.byNode(perm));
+    public boolean hasPerm(String perm) {
+        return hasPerm(Permissions.byNode(perm));
     }
 
-    public boolean checkPerm(Permissions perm) {
-        return checkPerm(perm, null);
+    public boolean hasPerm(Permissions perm) {
+        return hasPerm(perm, null);
     }
 
-    public boolean checkPerm(Permissions perm, ResultContainer resultContainer) {
+    public boolean hasPerm(Permissions perm, ResultContainer resultContainer) {
 
         boolean boolResult = getPerms().contains(perm.getNode());
         boolResult |= (getPerms().contains(Permissions.SUPERUSER.getNode()) && perm.isSuperUserAllow());
@@ -84,6 +84,39 @@ public class UserData {
         }
 
         return boolResult;
+    }
+
+    public boolean canEdit(UserData target, ResultContainer result) {
+
+        if (hasPerm(Permissions.SUPERUSER)) return true;
+
+        if (target.hasPerm(Permissions.SUPERUSER)) {
+            if (result != null) {
+                result.set("Superuser can not be edit!");
+                result.setResponseStatus(HttpResponseStatus.UNAUTHORIZED);
+            }
+            return false;
+        }
+
+        if (!hasPerm(Permissions.ADMIN_ACCOUNT_SELF_EDIT) && (getUserId() == target.getUserId())) {
+            if (result != null) {
+                result.set("Self editing is not allowed!");
+                result.setResponseStatus(HttpResponseStatus.UNAUTHORIZED);
+            }
+            return false;
+        }
+
+        if (target.hasPerm(Permissions.ADMIN_ACCOUNT_PREVENT_EDIT)
+                && !hasPerm(Permissions.ADMIN_ACCOUNT_PREVENT_EDIT_BYPASS)
+                && target.getUserId() != getUserId()) {
+            if (result != null) {
+                result.set("Target user can not be edited!");
+                result.setResponseStatus(HttpResponseStatus.UNAUTHORIZED);
+            }
+            return false;
+        }
+
+        return true;
     }
 
     public String getSessionID() {
